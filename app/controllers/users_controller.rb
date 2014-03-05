@@ -2,10 +2,19 @@ class UsersController < ApplicationController
   
   before_action :signed_in_user, only: [:edit, :update]
   before_action :correct_user,   only: [:edit, :update]
-  before_action :admin_user,     only: :destroy
+  before_action :admin_user,     only: :destroy 
+  before_filter :set_search
+
   
-  def index
-    @users = User.paginate(page: params[:page])
+ 
+  def search
+     @search = User.search(params[:q]) 
+     @users = @search.result
+  end
+
+  def index  
+         
+    @users = User.paginate(page: params[:page]) 
   end
   
   
@@ -53,7 +62,7 @@ class UsersController < ApplicationController
   
   private
     def user_params
-      params.require(:user).permit(:name, :email, :password, :password_confirmation)
+      params.require(:user).permit(:name, :email, :skill, :description, :java,:php, :rails, :password, :password_confirmation)
     end 
     
     # Before filters
@@ -67,5 +76,9 @@ class UsersController < ApplicationController
             
             def admin_user
                   redirect_to(root_url) unless current_user.admin?
+                end  
+                
+                def set_search
+                @search= User.search(params[:q])
                 end
 end
